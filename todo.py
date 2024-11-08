@@ -14,6 +14,11 @@ def create_parser():
     parser_list = subparsers.add_parser("LIST", help="Retrieve tasks")
     parser_list.add_argument("account", help="tasks account name")
 
+    #parser to remove saved task
+    parser_remove = subparsers.add_parser("REMOVE", help="remove specified task")
+    parser_remove.add_argument("account", help="account name")
+    parser_remove.add_argument("index", help="task index to be deleted")
+
     return parser
 
 def add_task(account, task):
@@ -32,15 +37,30 @@ def list(account):
     else:
         print("No account found.")
 
+def remove(account, index):
+    path = account+".txt"
+    if os.path.exists(path):
+        with open(path, "r") as file:
+            tasks = file.readlines()
+        with open(path, "w") as file:
+            for i, task in enumerate(tasks, start=1):
+                print(i, task)
+                if i != index:
+                    file.write(task)
+            print(f"Task {index} deleted.")
+        print("task removed succesfully")
+
 def main():
     parser = create_parser()
     args = parser.parse_args()
 
     if args.command == "ADD":
         add_task(args.account, args.task)
+        list(args.account)
     elif args.command == "LIST":
         list(args.account)
-
+    elif args.command == "REMOVE":
+        remove(args.account, int(args.index))
 
 if __name__ == "__main__":
     main()
